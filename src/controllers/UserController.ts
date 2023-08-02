@@ -16,7 +16,7 @@ class UserController {
     try {
       const hashedPassword = hashSync(password, PASSWORD_SALT_ROUNDS);
 
-      const attemptUserCreation = userRepository.create({
+      const attemptUserCreation = await userRepository.create({
         name,
         email,
         password: hashedPassword,
