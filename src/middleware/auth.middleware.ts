@@ -20,6 +20,8 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
       throw new AppError(ErrorMessage.INVALID_TOKEN, HttpStatus.UNAUTHORIZED);
     }
 
+    req.body.user = data;
+
     next();
   } catch (error) {
     errorMiddleware(error, req, res, next);

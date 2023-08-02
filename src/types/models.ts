@@ -17,7 +17,7 @@ export type CreateUser = {
 };
 
 export type Wallet = {
-  id?: number;
+  id: number;
   balance: number;
   user_id?: number;
   created_at?: string;

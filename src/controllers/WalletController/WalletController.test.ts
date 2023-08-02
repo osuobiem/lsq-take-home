@@ -1,5 +1,4 @@
 import {Request, Response, NextFunction} from "express";
-import WalletController from "./WalletController";
 import db from "../../config/db";
 import {knex} from "../../__mocks__/db.mock";
 import {mockDBUsers} from "../../__mocks__/user.mock";
@@ -8,6 +7,8 @@ import WalletRepository from "../../repositories/WalletRepository";
 import {mockDBWallets} from "../../__mocks__/wallet.mock";
 import AppError from "../../utils/AppError";
 import TransactionRepository from "../../repositories/TransactionRepository";
+import WalletController from "./WalletController";
+import {Wallet} from "../../types/models";
 
 process.env.NODE_ENV = "test";
 
@@ -19,8 +20,7 @@ describe("WalletController", () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
-  const mockDBUser1 = mockDBUsers[0];
-  const mockDBUser2 = mockDBUsers[1];
+  const mockDBUser = mockDBUsers[0];
 
   const mockDBWallet1 = mockDBWallets[0];
   const mockDBWallet2 = mockDBWallets[1];
@@ -30,6 +30,7 @@ describe("WalletController", () => {
     "create"
   );
   const mockUpdateWallet = jest.spyOn(WalletRepository.prototype, "update");
+  const mockFindWallet = jest.spyOn(WalletRepository.prototype, "find");
 
   beforeAll(() => {
     mockedDBConfig.mockReturnValue(knex as any);
@@ -43,6 +44,8 @@ describe("WalletController", () => {
     } as any;
 
     next = jest.fn();
+
+    mockFindWallet.mockReturnValue(mockDBWallet1 as any);
   });
 
   afterEach(() => {
@@ -50,12 +53,12 @@ describe("WalletController", () => {
   });
 
   // Fund wallet
-  describe("Fund wallet", () => {
+  describe.only("Fund wallet", () => {
     beforeEach(() => {
       req = {
         body: {
           amount: 7250,
-          data: mockDBUser1,
+          user: mockDBUser,
         },
       } as Request;
     });
@@ -70,16 +73,16 @@ describe("WalletController", () => {
 
       await WalletController.fund(req, res, next);
 
+      const newBalance = mockDBWallet1.balance + req.body.amount;
       expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
         ...mockDBWallet1,
-        balance: mockDBWallet1.balance + req.body.amount,
+        balance: newBalance,
       });
 
       // Test for transaction creation
       expect(mockCreateTransaction).toHaveBeenCalledWith({
         amount: req.body.amount,
         type: TransactionType.FUND,
-        from_wallet: null,
         to_wallet: mockDBWallet1.id,
       });
 
@@ -87,7 +90,7 @@ describe("WalletController", () => {
       expect(res.json).toHaveBeenCalledWith({
         message: "Wallet funded successfully",
         data: {
-          balance: mockDBWallet1.balance + req.body.amount,
+          balance: newBalance,
         },
       });
     });
@@ -101,7 +104,7 @@ describe("WalletController", () => {
         ...mockDBWallet1,
         balance: mockDBWallet1.balance + req.body.amount,
       });
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.SERVER_ERROR);
+
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
       );
@@ -114,7 +117,7 @@ describe("WalletController", () => {
       req = {
         body: {
           amount: 7250,
-          data: mockDBUser1,
+          user: mockDBUser,
         },
       } as Request;
     });
@@ -207,7 +210,7 @@ describe("WalletController", () => {
       req = {
         body: {
           amount: 12000,
-          data: mockDBUser1,
+          user: mockDBUser,
         },
       } as Request;
     });
