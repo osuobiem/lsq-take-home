@@ -167,11 +167,63 @@ class WalletController {
   /**
    * Withdraw from wallet
    */
-  static withdraw = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {};
+  static withdraw = async (req: Request, res: Response, next: NextFunction) => {
+    const {amount, user} = req.body;
+
+    const walletRepository = new WalletRepository();
+    const transactionRepository = new TransactionRepository();
+
+    try {
+      const wallet: Wallet = await walletRepository.find({user_id: user.id});
+
+      if (!wallet) {
+        throw new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR);
+      }
+
+      // Check if wallet has enough funds
+      if (wallet.balance < amount) {
+        throw new AppError(
+          ErrorMessage.INSUFFICIENT_FUNDS,
+          HttpStatus.BAD_REQUEST
+        );
+      }
+
+      // Deduct from wallet
+      const newBalance = wallet.balance - amount;
+      const updateWallet = await walletRepository.updateBalance(
+        wallet.id,
+        newBalance
+      );
+
+      if (!updateWallet) {
+        throw new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR);
+      }
+
+      // Create withdrawal transaction
+      const createTransaction = await transactionRepository.create({
+        type: TransactionType.WITHDRAW,
+        amount,
+        to_wallet: wallet.id,
+      });
+
+      // Rollback wallet update
+      if (!createTransaction || createTransaction[0] === 0) {
+        wallet.balance -= amount;
+        await walletRepository.updateBalance(wallet.id, wallet.balance);
+
+        throw new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR);
+      }
+
+      res.status(HttpStatus.OK).json({
+        message: "Withdrawal successful",
+        data: {
+          balance: newBalance,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default WalletController;
