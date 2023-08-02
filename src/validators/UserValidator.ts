@@ -8,6 +8,13 @@ class UserValidator {
       password: Joi.string().min(8).required(),
     }),
   });
+
+  static login = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    }),
+  });
 }
 
 export default UserValidator;
