@@ -2,7 +2,6 @@ import {NextFunction, Request, Response} from "express";
 import AppError from "../utils/AppError";
 import {HttpStatus} from "../utils/enums";
 import errorMiddleware from "./error.middleware";
-import {Repository} from "../types/repositories";
 import BaseRepository from "../repositories/BaseRepostory";
 
 type ExistOptions = {

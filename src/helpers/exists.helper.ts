@@ -8,6 +8,7 @@ export const emailExists = (req: Request, res: Response, next: NextFunction) =>
       repository: new UserRepository(),
       attribute: "email",
       value: req.body.email,
+      shouldExist: false,
     },
     req,
     res,

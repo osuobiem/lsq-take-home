@@ -3,10 +3,13 @@ import {TransactionType} from "../utils/enums";
 export type User = {
   name: string;
   email: string;
-  accessToken?: string;
-  password?: string;
-  created_at?: string;
-  updated_at?: string;
+  accessToken: string;
+};
+
+export type CreateUser = {
+  name: string;
+  email: string;
+  password: string;
 };
 
 export type Wallet = {

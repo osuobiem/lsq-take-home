@@ -1,20 +1,20 @@
 import express, {Express} from "express";
 import dotenv from "dotenv";
 import errorMiddleware from "./src/middleware/error.middleware";
-import AppError from "./src/utils/AppError";
-import {HttpStatus} from "./src/utils/enums";
+import bodyParser from "body-parser";
+import router from "./src/router";
+import {errors} from "celebrate";
 
 dotenv.config();
 
 const app: Express = express();
 
-app.get("/", (req, res, next) => {
-  try {
-    throw new AppError("You cannot access this", HttpStatus.UNAUTHORIZED);
-  } catch (error) {
-    next(error);
-  }
-});
+app.use(bodyParser.json());
+
+app.use(router);
+
+// Validation errors middleware
+app.use(errors());
 
 // User error middleware
 app.use(errorMiddleware);
