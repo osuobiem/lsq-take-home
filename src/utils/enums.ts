@@ -18,4 +18,6 @@ export enum ErrorMessage {
   INVALID_CREDENTIALS = "Invalid credentials",
   TOKEN_IS_REQUIRED = "Access token is required",
   INVALID_TOKEN = "Invalid access token",
+  INSUFFICIENT_FUNDS = "Insufficient funds",
+  INVALID_TRANSFER = "Invalid transfer request",
 }

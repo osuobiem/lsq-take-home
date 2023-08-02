@@ -5,7 +5,7 @@ import UserController from "./UserController";
 import db from "../../config/db";
 import {knex} from "../../__mocks__/db.mock";
 import UserRepository from "../../repositories/UserRepository";
-import {mockDBUser, mockUserRequestData} from "../../__mocks__/user.mock";
+import {mockDBUsers, mockUserRequestData} from "../../__mocks__/user.mock";
 import {ErrorMessage, HttpStatus} from "../../utils/enums";
 import AppError from "../../utils/AppError";
 
@@ -25,6 +25,7 @@ describe("UserController", () => {
   let res: Response;
   let next: NextFunction;
   const accessToken = "randomAccessToken";
+  const mockDBUser = mockDBUsers[0];
 
   beforeAll(() => {
     mockedDBConfig.mockReturnValue(knex as any);
