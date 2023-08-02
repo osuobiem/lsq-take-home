@@ -10,6 +10,7 @@ type ExistOptions = {
   value: string | number;
   shouldExist?: boolean;
   passData?: boolean;
+  customMessage?: string;
 };
 
 const exists = async (
@@ -24,9 +25,11 @@ const exists = async (
     value,
     shouldExist = true,
     passData = false,
+    customMessage,
   } = options;
 
-  const errorPart = shouldExist ? "doesn't exist" : "already exists";
+  const errorPart =
+    customMessage ?? shouldExist ? "doesn't exist" : "already exists";
   const errorMessage = `The '${attribute}' ${errorPart}`;
 
   try {

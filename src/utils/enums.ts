@@ -15,4 +15,5 @@ export enum HttpStatus {
 
 export enum ErrorMessage {
   SERVER_ERROR = "Something went wrong!",
+  INVALID_CREDENTIALS = "Invalid credentials",
 }
