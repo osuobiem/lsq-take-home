@@ -51,6 +51,7 @@ The API provides the following endpoints:
 - **PUT /api/wallet/withdraw**: Withdraw funds from the user's wallet.
 
 For more detailed information about each endpoint and their request/response structures, please refer to the API documentation provided in the [Postman collection](https://www.postman.com/red-sunset-250380/workspace/my-workspace/collection/5115719-35c0dfea-70cc-4e65-945b-6c01c2d1c275?action=share&creator=5115719).
+On Postman, select the environment you prefer to test on. If you setup the local properly you should be able to use the Local environment on Postmen, else default to using the Staging environment.
 
 ## **Authentication 🔐**
 
@@ -76,4 +77,4 @@ The database design is represented by the Entity-Relationship (E-R) Diagram belo
 
 The API has been deployed to Render and is accessible at the following URL:
 
-**[https://lendsqr-be-test.onrender.com](https://lendsqr-be-test.onrender.com)**
+**[https://lendsqr-be-test.onrender.com/api](https://lendsqr-be-test.onrender.com/api)**
