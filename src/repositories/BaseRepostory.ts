@@ -24,8 +24,22 @@ class BaseRepository {
   /**
    * Get single record
    */
-  find(id: number): Promise<any | undefined> {
-    return this.db.where({id}).first();
+  find(by: object = {}): Promise<any | undefined> {
+    return this.db.where({...by}).first();
+  }
+
+  /**
+   * Get by filter
+   */
+  get(filter: object = {}): Promise<any[]> {
+    return this.db.where({...filter}).select();
+  }
+
+  /**
+   * Delete record
+   */
+  delete(by: object = {}): Promise<any | number> {
+    return this.db.where({...by}).delete();
   }
 }
 
