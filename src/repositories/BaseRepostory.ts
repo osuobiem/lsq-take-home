@@ -10,7 +10,7 @@ class BaseRepository {
   /**
    * Create
    */
-  create(data: any): Promise<number[]> {
+  create(data: any): Promise<any | number[]> {
     return this.db.insert(data);
   }
 
