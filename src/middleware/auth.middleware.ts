@@ -7,13 +7,16 @@ import errorMiddleware from "./error.middleware";
 const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   const {authorization} = req.headers;
 
-  // Check if token is in the request header
-  if (!authorization) {
-    throw new AppError(ErrorMessage.TOKEN_IS_REQUIRED, HttpStatus.UNAUTHORIZED);
-  }
-
-  // Verify the token
   try {
+    // Check if token is in the request header
+    if (!authorization) {
+      throw new AppError(
+        ErrorMessage.TOKEN_IS_REQUIRED,
+        HttpStatus.UNAUTHORIZED
+      );
+    }
+
+    // Verify the token
     const data = await new UserRepository().find({accessToken: authorization});
 
     if (!data) {
