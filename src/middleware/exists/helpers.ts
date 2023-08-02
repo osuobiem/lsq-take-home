@@ -1,7 +1,7 @@
-import exists from "../middleware/exists.middleware";
-import UserRepository from "../repositories/UserRepository";
+import exists from "./index";
+import UserRepository from "../../repositories/UserRepository";
 import {NextFunction, Request, Response} from "express";
-import {ErrorMessage} from "../utils/enums";
+import {ErrorMessage} from "../../utils/enums";
 
 /**
  * Helper function that checks if an email does not exist

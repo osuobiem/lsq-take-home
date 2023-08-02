@@ -4,7 +4,7 @@ import {
   emailShouldExist,
   emailShouldNotExist,
   userWithIdShouldExist,
-} from "./helpers/exists.helper";
+} from "./middleware/exists/helpers";
 import UserController from "./controllers/UserController/UserController";
 import verifyToken from "./middleware/auth.middleware";
 import WalletValidator from "./validators/WalletValidator";
@@ -43,6 +43,14 @@ router.put(
   WalletValidator.transfer,
   userWithIdShouldExist,
   WalletController.transfer
+);
+
+// Withdraw from wallet
+router.put(
+  "/api/wallet/withdraw",
+  verifyToken,
+  WalletValidator.withdraw,
+  WalletController.withdraw
 );
 
 export default router;

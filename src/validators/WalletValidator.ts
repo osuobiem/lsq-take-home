@@ -15,6 +15,13 @@ class WalletValidator {
       to: Joi.number().required(),
     }),
   });
+
+  static withdraw = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      amount: Joi.number().min(1).required(),
+      user: Joi.object(),
+    }),
+  });
 }
 
 export default WalletValidator;

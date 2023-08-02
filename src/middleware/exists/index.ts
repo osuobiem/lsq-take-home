@@ -1,8 +1,8 @@
 import {NextFunction, Request, Response} from "express";
-import AppError from "../utils/AppError";
-import {HttpStatus} from "../utils/enums";
-import errorMiddleware from "./error.middleware";
-import BaseRepository from "../repositories/BaseRepostory";
+import AppError from "../../utils/AppError";
+import {HttpStatus} from "../../utils/enums";
+import errorMiddleware from "./../error.middleware";
+import BaseRepository from "../../repositories/BaseRepostory";
 
 type ExistOptions = {
   repository: BaseRepository;
@@ -28,9 +28,8 @@ const exists = async (
     customMessage,
   } = options;
 
-  const errorPart =
-    customMessage ?? shouldExist ? "doesn't exist" : "already exists";
-  const errorMessage = `The '${attribute}' ${errorPart}`;
+  const errorPart = shouldExist ? "doesn't exist" : "already exists";
+  const errorMessage = customMessage ?? `The '${attribute}' ${errorPart}`;
 
   try {
     const data = await repository.find({[attribute]: value});
