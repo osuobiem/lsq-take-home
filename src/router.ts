@@ -1,7 +1,7 @@
 import {Router} from "express";
 import UserValidator from "./validators/UserValidator";
 import {emailShouldExist, emailShouldNotExist} from "./helpers/exists.helper";
-import UserController from "./controllers/UserController";
+import UserController from "./controllers/UserController/UserController";
 
 const router = Router();
 

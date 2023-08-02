@@ -2,18 +2,18 @@ import {Request, Response, NextFunction} from "express";
 import {hashSync, compareSync} from "bcrypt";
 import {randomBytes} from "crypto";
 import UserController from "./UserController";
-import db from "../config/db";
-import {knex} from "../__mocks__/db.mock";
-import UserRepository from "../repositories/UserRepository";
-import {mockDBUser, mockUserRequestData} from "../__mocks__/user.mock";
-import {ErrorMessage, HttpStatus} from "../utils/enums";
-import AppError from "../utils/AppError";
+import db from "../../config/db";
+import {knex} from "../../__mocks__/db.mock";
+import UserRepository from "../../repositories/UserRepository";
+import {mockDBUser, mockUserRequestData} from "../../__mocks__/user.mock";
+import {ErrorMessage, HttpStatus} from "../../utils/enums";
+import AppError from "../../utils/AppError";
 
 process.env.NODE_ENV = "test";
 
 jest.mock("bcrypt");
 jest.mock("crypto");
-jest.mock("../config/db.ts");
+jest.mock("../../config/db.ts");
 
 const mockedDBConfig = jest.mocked(db);
 const mockedHashSync = jest.mocked(hashSync);
@@ -100,7 +100,7 @@ describe("UserController", () => {
         body: {
           email: mockUserRequestData.email,
           password: mockUserRequestData.password,
-          user: mockDBUser,
+          data: mockDBUser,
         },
       } as Request;
     });

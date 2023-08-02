@@ -1,10 +1,9 @@
 import {NextFunction, Request, Response} from "express";
 import {compareSync, hashSync} from "bcrypt";
-import {ACCESS_TOKEN_LENGTH, PASSWORD_SALT_ROUNDS} from "../utils/constants";
-import UserRepository from "../repositories/UserRepository";
-import AppError from "../utils/AppError";
-import {ErrorMessage, HttpStatus} from "../utils/enums";
-import {User} from "../types/models";
+import {ACCESS_TOKEN_LENGTH, PASSWORD_SALT_ROUNDS} from "../../utils/constants";
+import UserRepository from "../../repositories/UserRepository";
+import AppError from "../../utils/AppError";
+import {ErrorMessage, HttpStatus} from "../../utils/enums";
 import {randomBytes} from "crypto";
 
 class UserController {
@@ -39,7 +38,8 @@ class UserController {
    * User login action
    */
   static login = async (req: Request, res: Response, next: NextFunction) => {
-    const {user, password} = req.body;
+    const {data, password} = req.body;
+    const user = data;
 
     try {
       // Check password

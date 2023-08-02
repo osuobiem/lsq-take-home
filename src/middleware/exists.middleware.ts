@@ -39,7 +39,7 @@ const exists = async (
       throw new AppError(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    if (passData) req.body.user = data;
+    if (passData) req.body.data = data;
 
     next();
   } catch (error) {
