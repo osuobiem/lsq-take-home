@@ -1,6 +1,6 @@
 ## Lendsqr BE Task
 
-This is a NodeJS API with TypeScript implementation that serves as a Minimum Viable Product (MVP) for wallet functionality. The wallet service enables users to create an account, login, fund their account, transfer funds to other users, and withdraw funds from their account.
+This is a NodeJS API with TypeScript implementation that serves as an MVP for a wallet service. The wallet service enables users to create an account, login, fund their account, transfer funds to other users, and withdraw funds from their account.
 
 ## Tech Stack 🔥
 
@@ -74,6 +74,6 @@ The database design is represented by the Entity-Relationship (E-R) Diagram belo
 
 ## **Deployment**
 
-The API has been deployed to Heroku and is accessible at the following URL:
+The API has been deployed to Render and is accessible at the following URL:
 
 **[https://lendsqr-be-test.onrender.com](https://lendsqr-be-test.onrender.com)**
