@@ -22,6 +22,11 @@ const knexConfig: {[key: string]: Knex.Config} = {
       directory: __dirname + "/src/migrations",
     },
   },
+
+  test: {
+    client: "mysql",
+    connection: {},
+  },
 };
 
 export default knexConfig;
