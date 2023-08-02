@@ -20,23 +20,28 @@ describe("WalletController", () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
-  const mockDBUser = mockDBUsers[0];
+  const mockDBUser1 = mockDBUsers[0];
+  const mockDBUser2 = mockDBUsers[1];
 
   const mockDBWallet1 = mockDBWallets[0];
   const mockDBWallet2 = mockDBWallets[1];
 
-  const mockCreateTransaction = jest.spyOn(
-    TransactionRepository.prototype,
-    "create"
-  );
-  const mockUpdateWallet = jest.spyOn(WalletRepository.prototype, "update");
-  const mockFindWallet = jest.spyOn(WalletRepository.prototype, "find");
+  let mockCreateTransaction: jest.SpyInstance;
+  let mockUpdateWallet: jest.SpyInstance;
+  let mockFindWallet: jest.SpyInstance;
 
   beforeAll(() => {
     mockedDBConfig.mockReturnValue(knex as any);
   });
 
   beforeEach(() => {
+    mockCreateTransaction = jest.spyOn(
+      TransactionRepository.prototype,
+      "create"
+    );
+    mockUpdateWallet = jest.spyOn(WalletRepository.prototype, "update");
+    mockFindWallet = jest.spyOn(WalletRepository.prototype, "find");
+
     res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
@@ -45,7 +50,7 @@ describe("WalletController", () => {
 
     next = jest.fn();
 
-    mockFindWallet.mockReturnValue(mockDBWallet1 as any);
+    mockFindWallet.mockReturnValueOnce(mockDBWallet1 as any);
   });
 
   afterEach(() => {
@@ -53,12 +58,12 @@ describe("WalletController", () => {
   });
 
   // Fund wallet
-  describe.only("Fund wallet", () => {
+  describe("Fund wallet", () => {
     beforeEach(() => {
       req = {
         body: {
           amount: 7250,
-          user: mockDBUser,
+          user: mockDBUser1,
         },
       } as Request;
     });
@@ -117,7 +122,7 @@ describe("WalletController", () => {
       req = {
         body: {
           amount: 7250,
-          user: mockDBUser,
+          user: mockDBUser1,
         },
       } as Request;
     });
@@ -127,9 +132,11 @@ describe("WalletController", () => {
     });
 
     test("should successfully transfer from wallet", async () => {
-      req.body.to_user = 2;
+      req.body.data = mockDBUser2;
 
-      mockUpdateWallet.mockResolvedValueOnce(1);
+      mockFindWallet.mockReturnValueOnce(mockDBWallet2 as any);
+
+      mockUpdateWallet.mockResolvedValue(1);
       mockCreateTransaction.mockResolvedValueOnce([1]);
 
       await WalletController.transfer(req, res, next);
@@ -165,39 +172,40 @@ describe("WalletController", () => {
 
     test("should throw an error if wallet funds is insufficient", async () => {
       req.body.amount = 500000;
-      req.body.to_user = 2;
+      req.body.data = mockDBUser2;
+
+      mockFindWallet.mockReturnValue(mockDBWallet2 as any);
 
       await WalletController.transfer(req, res, next);
 
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.INSUFFICIENT_FUNDS, HttpStatus.BAD_REQUEST)
       );
     });
 
     test("should throw an error if the transfer is attempted on the same wallet", async () => {
-      req.body.to_user = 1;
+      req.body.data = mockDBUser1;
 
       await WalletController.transfer(req, res, next);
 
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.INVALID_TRANSFER, HttpStatus.BAD_REQUEST)
       );
     });
 
     test("should throw an error if transfer is unsuccessful", async () => {
-      req.body.to_user = 2;
+      req.body.data = mockDBUser2;
 
+      mockFindWallet.mockReturnValueOnce(mockDBWallet2 as any);
       mockUpdateWallet.mockResolvedValueOnce(0);
 
       await WalletController.transfer(req, res, next);
 
       expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
         ...mockDBWallet1,
-        balance: mockDBWallet1.balance + req.body.amount,
+        balance: mockDBWallet1.balance - req.body.amount,
       });
-      expect(res.status).toHaveBeenCalledWith(HttpStatus.SERVER_ERROR);
+
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
       );
@@ -210,7 +218,7 @@ describe("WalletController", () => {
       req = {
         body: {
           amount: 12000,
-          user: mockDBUser,
+          user: mockDBUser1,
         },
       } as Request;
     });

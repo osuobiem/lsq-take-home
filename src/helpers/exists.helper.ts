@@ -44,3 +44,25 @@ export const emailShouldExist = (
     res,
     next
   );
+
+/**
+ * Helper function that checks if an id exists and passes down the user object
+ */
+export const userWithIdShouldExist = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) =>
+  exists(
+    {
+      repository: new UserRepository(),
+      attribute: "id",
+      value: req.body.to,
+      shouldExist: true,
+      passData: true,
+      customMessage: ErrorMessage.USER_DOES_NOT_EXIST,
+    },
+    req,
+    res,
+    next
+  );

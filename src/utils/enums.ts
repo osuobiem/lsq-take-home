@@ -20,4 +20,5 @@ export enum ErrorMessage {
   INVALID_TOKEN = "Invalid access token",
   INSUFFICIENT_FUNDS = "Insufficient funds",
   INVALID_TRANSFER = "Invalid transfer request",
+  USER_DOES_NOT_EXIST = "User does not exist",
 }
