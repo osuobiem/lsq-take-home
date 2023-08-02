@@ -3,4 +3,6 @@ export type User = {
   email: string;
   accessToken?: string;
   password?: string;
+  created_at?: string;
+  updated_at?: string;
 };
