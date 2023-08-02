@@ -7,6 +7,14 @@ class WalletValidator {
       user: Joi.object(),
     }),
   });
+
+  static transfer = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      amount: Joi.number().min(1).required(),
+      user: Joi.object(),
+      to: Joi.number().required(),
+    }),
+  });
 }
 
 export default WalletValidator;

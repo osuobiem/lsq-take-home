@@ -1,6 +1,10 @@
 import {Router} from "express";
 import UserValidator from "./validators/UserValidator";
-import {emailShouldExist, emailShouldNotExist} from "./helpers/exists.helper";
+import {
+  emailShouldExist,
+  emailShouldNotExist,
+  userWithIdShouldExist,
+} from "./helpers/exists.helper";
 import UserController from "./controllers/UserController/UserController";
 import verifyToken from "./middleware/auth.middleware";
 import WalletValidator from "./validators/WalletValidator";
@@ -30,6 +34,15 @@ router.put(
   verifyToken,
   WalletValidator.fund,
   WalletController.fund
+);
+
+// Transfer from wallet
+router.put(
+  "/api/wallet/transfer",
+  verifyToken,
+  WalletValidator.transfer,
+  userWithIdShouldExist,
+  WalletController.transfer
 );
 
 export default router;
