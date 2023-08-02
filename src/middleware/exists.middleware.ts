@@ -33,13 +33,13 @@ const exists = async (
   const errorMessage = `The '${attribute}' ${errorPart}`;
 
   try {
-    const data = await repository.get({[attribute]: value});
+    const data = await repository.find({[attribute]: value});
 
-    if ((shouldExist && data.length < 1) || (!shouldExist && data.length > 0)) {
+    if ((shouldExist && !data) || (!shouldExist && data)) {
       throw new AppError(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    if (passData) req.body.user = data[0];
+    if (passData) req.body.user = data;
 
     next();
   } catch (error) {
