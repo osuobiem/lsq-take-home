@@ -38,13 +38,8 @@ class UserController {
   /**
    * User login action
    */
-  static login = async (
-    user: User,
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    const {password} = req.body;
+  static login = async (req: Request, res: Response, next: NextFunction) => {
+    const {user, password} = req.body;
 
     try {
       // Check password
@@ -74,8 +69,8 @@ class UserController {
         data: {
           name: user.name,
           email: user.email,
-          accessToken: accessToken,
         },
+        accessToken: accessToken,
       });
     } catch (error) {
       next(error);

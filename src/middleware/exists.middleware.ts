@@ -35,14 +35,13 @@ const exists = async (
   try {
     const data = await repository.get({[attribute]: value});
 
-    if (
-      (shouldExist && data.length! > 0) ||
-      (!shouldExist && data.length > 0)
-    ) {
+    if ((shouldExist && data.length < 1) || (!shouldExist && data.length > 0)) {
       throw new AppError(errorMessage, HttpStatus.BAD_REQUEST);
     }
 
-    passData ? next(data[0]) : next();
+    if (passData) req.body.user = data[0];
+
+    next();
   } catch (error) {
     errorMiddleware(error, req, res, next);
   }
