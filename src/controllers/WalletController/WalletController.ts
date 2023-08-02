@@ -14,6 +14,15 @@ class WalletController {
     res: Response,
     next: NextFunction
   ) => {};
+
+  /**
+   * Withdraw from wallet
+   */
+  static withdraw = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {};
 }
 
 export default WalletController;
