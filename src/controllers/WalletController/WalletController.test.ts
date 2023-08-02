@@ -27,7 +27,7 @@ describe("WalletController", () => {
   const mockDBWallet2 = mockDBWallets[1];
 
   let mockCreateTransaction: jest.SpyInstance;
-  let mockUpdateWallet: jest.SpyInstance;
+  let mockUpdateWalletBalance: jest.SpyInstance;
   let mockFindWallet: jest.SpyInstance;
 
   beforeAll(() => {
@@ -39,7 +39,10 @@ describe("WalletController", () => {
       TransactionRepository.prototype,
       "create"
     );
-    mockUpdateWallet = jest.spyOn(WalletRepository.prototype, "update");
+    mockUpdateWalletBalance = jest.spyOn(
+      WalletRepository.prototype,
+      "updateBalance"
+    );
     mockFindWallet = jest.spyOn(WalletRepository.prototype, "find");
 
     res = {
@@ -73,16 +76,16 @@ describe("WalletController", () => {
     });
 
     test("should successfully fund the wallet", async () => {
-      mockUpdateWallet.mockResolvedValueOnce(1);
+      mockUpdateWalletBalance.mockResolvedValueOnce(1);
       mockCreateTransaction.mockResolvedValueOnce([1]);
 
       await WalletController.fund(req, res, next);
 
       const newBalance = mockDBWallet1.balance + req.body.amount;
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: newBalance,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        newBalance
+      );
 
       // Test for transaction creation
       expect(mockCreateTransaction).toHaveBeenCalledWith({
@@ -101,14 +104,14 @@ describe("WalletController", () => {
     });
 
     test("should throw an error if funding is unsuccessful", async () => {
-      mockUpdateWallet.mockResolvedValueOnce(0);
+      mockUpdateWalletBalance.mockResolvedValueOnce(0);
 
       await WalletController.fund(req, res, next);
 
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: mockDBWallet1.balance + req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        mockDBWallet1.balance + req.body.amount
+      );
 
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
@@ -136,22 +139,22 @@ describe("WalletController", () => {
 
       mockFindWallet.mockReturnValueOnce(mockDBWallet2 as any);
 
-      mockUpdateWallet.mockResolvedValue(1);
+      mockUpdateWalletBalance.mockResolvedValue(1);
       mockCreateTransaction.mockResolvedValueOnce([1]);
 
       await WalletController.transfer(req, res, next);
 
       // Test for sender's wallet balance deduction
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: mockDBWallet1.balance - req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        mockDBWallet1.balance - req.body.amount
+      );
 
       // Test for receiver's wallet balance addition
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet2.id, {
-        ...mockDBWallet2,
-        balance: mockDBWallet2.balance + req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet2.id,
+        mockDBWallet2.balance + req.body.amount
+      );
 
       // Test for transaction creation
       expect(mockCreateTransaction).toHaveBeenCalledWith({
@@ -197,14 +200,14 @@ describe("WalletController", () => {
       req.body.data = mockDBUser2;
 
       mockFindWallet.mockReturnValueOnce(mockDBWallet2 as any);
-      mockUpdateWallet.mockResolvedValueOnce(0);
+      mockUpdateWalletBalance.mockResolvedValueOnce(0);
 
       await WalletController.transfer(req, res, next);
 
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: mockDBWallet1.balance - req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        mockDBWallet1.balance - req.body.amount
+      );
 
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
@@ -228,16 +231,16 @@ describe("WalletController", () => {
     });
 
     test("should successfully withdraw from wallet", async () => {
-      mockUpdateWallet.mockResolvedValueOnce(1);
+      mockUpdateWalletBalance.mockResolvedValueOnce(1);
       mockCreateTransaction.mockResolvedValueOnce([1]);
 
       await WalletController.withdraw(req, res, next);
 
       // Test for sender's wallet balance deduction
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: mockDBWallet1.balance - req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        mockDBWallet1.balance - req.body.amount
+      );
 
       // Test for transaction creation
       expect(mockCreateTransaction).toHaveBeenCalledWith({
@@ -268,14 +271,14 @@ describe("WalletController", () => {
     });
 
     test("should throw an error if withdraw is unsuccessful", async () => {
-      mockUpdateWallet.mockResolvedValueOnce(0);
+      mockUpdateWalletBalance.mockResolvedValueOnce(0);
 
       await WalletController.transfer(req, res, next);
 
-      expect(mockUpdateWallet).toHaveBeenCalledWith(mockDBWallet1.id, {
-        ...mockDBWallet1,
-        balance: mockDBWallet1.balance - req.body.amount,
-      });
+      expect(mockUpdateWalletBalance).toHaveBeenCalledWith(
+        mockDBWallet1.id,
+        mockDBWallet1.balance - req.body.amount
+      );
       expect(res.status).toHaveBeenCalledWith(HttpStatus.SERVER_ERROR);
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
