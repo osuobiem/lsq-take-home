@@ -1,28 +1,47 @@
 import {Request, Response, NextFunction} from "express";
-import {hashSync} from "bcrypt";
+import {hashSync, compareSync} from "bcrypt";
+import {randomBytes} from "crypto";
 import UserController from "./UserController";
 import db from "../config/db";
 import {knex} from "../__mocks__/db.mock";
 import UserRepository from "../repositories/UserRepository";
-import {mockUserRequestData} from "../__mocks__/user.mock";
+import {mockDBUser, mockUserRequestData} from "../__mocks__/user.mock";
 import {ErrorMessage, HttpStatus} from "../utils/enums";
 import AppError from "../utils/AppError";
 
 process.env.NODE_ENV = "test";
 
 jest.mock("bcrypt");
+jest.mock("crypto");
 jest.mock("../config/db.ts");
 
-const mockDBConfig = jest.mocked(db);
-const mockHashSync = jest.mocked(hashSync);
+const mockedDBConfig = jest.mocked(db);
+const mockedHashSync = jest.mocked(hashSync);
+const mockedCompareSync = jest.mocked(compareSync);
+const mockedRandomBytes = jest.mocked(randomBytes);
 
 describe("UserController", () => {
   let req: Request;
   let res: Response;
   let next: NextFunction;
+  const accessToken = "randomAccessToken";
 
   beforeAll(() => {
-    mockDBConfig.mockReturnValue(knex as any);
+    mockedDBConfig.mockReturnValue(knex as any);
+  });
+
+  beforeEach(() => {
+    res = {
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+      json: jest.fn(),
+    } as any;
+
+    next = jest.fn();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   // User signup tests
@@ -34,18 +53,7 @@ describe("UserController", () => {
         body: mockUserRequestData,
       } as Request;
 
-      res = {
-        status: jest.fn().mockReturnThis(),
-        send: jest.fn(),
-      } as any;
-
-      next = jest.fn();
-
-      mockHashSync.mockImplementation(() => "hashedPassword123");
-    });
-
-    afterEach(() => {
-      jest.clearAllMocks();
+      mockedHashSync.mockReturnValueOnce("hashedPassword123");
     });
 
     test("should create a new user successfully", async () => {
@@ -53,7 +61,7 @@ describe("UserController", () => {
 
       await UserController.signup(req, res, next);
 
-      expect(mockHashSync).toHaveBeenCalledWith(
+      expect(mockedHashSync).toHaveBeenCalledWith(
         "password123",
         expect.any(Number)
       );
@@ -73,6 +81,71 @@ describe("UserController", () => {
 
       expect(next).toHaveBeenCalledWith(
         new AppError(ErrorMessage.SERVER_ERROR, HttpStatus.SERVER_ERROR)
+      );
+    });
+  });
+
+  // User login tests
+  describe("User login", () => {
+    const mockUpdateUser = jest.spyOn(UserRepository.prototype, "update");
+
+    beforeAll(() => {
+      mockedRandomBytes.mockReturnValueOnce({
+        toString: jest.fn().mockReturnValue(accessToken),
+      } as any);
+    });
+
+    beforeEach(() => {
+      req = {
+        body: {
+          email: mockUserRequestData.email,
+          password: mockUserRequestData.password,
+          user: mockDBUser,
+        },
+      } as Request;
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test("should successfully login a user", async () => {
+      mockUpdateUser.mockResolvedValueOnce(1);
+      mockedCompareSync.mockReturnValueOnce(true);
+
+      await UserController.login(req, res, next);
+
+      expect(mockedCompareSync).toHaveBeenCalledWith(
+        "password123",
+        mockDBUser.password
+      );
+      expect(mockUpdateUser).toHaveBeenCalledWith(mockDBUser.id, {
+        ...mockDBUser,
+        accessToken,
+      });
+      expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Login Successful",
+        data: {
+          name: mockDBUser.name,
+          email: mockDBUser.email,
+        },
+        accessToken: accessToken,
+      });
+    });
+
+    test("should throw an error if user password is incorrect", async () => {
+      mockedCompareSync.mockReturnValueOnce(false);
+
+      await UserController.login(req, res, next);
+
+      expect(mockedCompareSync).toHaveBeenCalledWith(
+        "password123",
+        mockDBUser.password
+      );
+
+      expect(next).toHaveBeenCalledWith(
+        new AppError(ErrorMessage.INVALID_CREDENTIALS, HttpStatus.BAD_REQUEST)
       );
     });
   });
